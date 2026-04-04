@@ -6,7 +6,7 @@ This repository provides a complete end-to-end pipeline for predicting fracture 
 https://www.materialsdatafacility.org/detail/36a0cbae-899b-4adb-84d9-28d72f786659-1.0 
 
 # 🚀 Complete Procedure
-Step 1: Download Data
+Step 1: Download Data:
 Download the experimental dataset from the Materials Data Facility website and save the CSV files to your local computer.
 
 Step 2: Install Dependencies
@@ -14,11 +14,15 @@ pip install torch pandas numpy scikit-learn matplotlib seaborn scipy
 # Step 3: Run the Pipeline
 Execute the scripts in the following order:
 python 01_data_processing.py      # Process raw experimental data
+
 python 02_comprehensive_analysis.py  # Train physics-aware MTL model
+
 python 03_Baseline_Models.py      # Compute baseline models for comparison
+
 python 04_article_figures.py      # Generate publication-ready figures
+
 Script Descriptions
-01_data_processing.py - Data Preprocessing
+# 01_data_processing.py - Data Preprocessing
 Purpose: Converts raw experimental CSV files into standardized, machine-learning-ready datasets.
 
 # What it does:
