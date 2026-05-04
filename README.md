@@ -1,226 +1,89 @@
-# Complete Workflow for Crack Growth Prediction using Physics-Aware Multi-Task Learning
-# 📋 Overview
-This repository provides a complete end-to-end pipeline for predicting fracture mechanics parameters from experimental crack growth data. The workflow processes raw experimental data, trains a physics-aware multi-task neural network, computes baseline models for comparison, and generates publication-ready visualizations.
+# Physics-Aware Multi-Task Learning for Crack Growth Prediction
 
-# Data Source: Experimental data downloaded from Materials Data Facility
-https://www.materialsdatafacility.org/detail/36a0cbae-899b-4adb-84d9-28d72f786659-1.0 
+## Overview
 
-# 🚀 Complete Procedure
-Step 1: Download Data:
-Download the experimental dataset from the Materials Data Facility website and save the CSV files to your local computer.
+This repository contains complete Python code for predicting fracture mechanics parameters (strain energy release rate G and crack velocity) using a Physics-Aware Multi-Task Learning (PA-MTL) framework. The code processes experimental crack growth data, trains baseline models, implements a novel physics-aware neural network, and generates publication-ready figures and statistical analyses.
 
-Step 2: Install Dependencies
-pip install torch pandas numpy scikit-learn matplotlib seaborn scipy
-# Step 3: Run the Pipeline
+## Data Source
 
-Execute the scripts in the following order:
+The experimental data used in this study is available from the Materials Data Facility:
+https://www.materialsdatafacility.org/detail/36a0cbae-899b-4adb-84d9-28d72f786659-1.0 also you can use doi. https://doi.org/10.18126/faxs-ga32 
 
-python 01_data_processing.py      # Process raw experimental data
+## Repository Structure
 
-python 02_comprehensive_analysis.py  # Train physics-aware MTL model
+01_data_processing.py          # Preprocesses raw CSV files
+02_baseline_models.py          # Linear, Ridge, Random Forest baselines with 5-fold CV
+03_comprehensive_analysis.py   # PA-MTL training and ensemble model
+04_enhanced_analysis.py        # SHAP analysis, ablation study, CV plots
+05_article_figures.py          # Publication-ready figures and tables
+06_statistical_tests.py        # Friedman, Nemenyi, Wilcoxon tests
 
-python 03_Baseline_Models.py      # Compute baseline models for comparison
+## Script Descriptions
 
-python 04_article_figures.py      # Generate publication-ready figures
+### 01_data_processing.py
+Parses experimental CSV files with special header format containing metadata (spacer height, mica thickness). Extracts features, handles missing values, standardizes data, and saves processed files for machine learning.
 
-Script Descriptions
-# 01_data_processing.py - Data Preprocessing
-Purpose: Converts raw experimental CSV files into standardized, machine-learning-ready datasets.
+Input: Raw CSV files in specified directory
+Output: processed_features.csv, processed_targets.csv, original_combined_data.csv
 
-# What it does:
+### 02_baseline_models.py
+Trains Linear Regression, Ridge Regression, and Random Forest models. Performs 5-fold cross-validation and saves results for statistical comparison.
 
-Extracts metadata (spacer height, mica thickness) from file headers
+Output: baseline_results/ (CV matrices, predictions, LaTeX tables)
 
-Reads multiple CSV files from a directory
+### 03_comprehensive_analysis.py
+Implements the Physics-Aware Multi-Task Learning architecture with shared encoder, direct crack length bypass connection to G branch, and dynamic task weighting. Trains ensemble model combining PA-MTL with Random Forest. Saves training history for visualization.
 
-Combines all experimental data into a single DataFrame
+Output: optimized_mtl_results/ (model weights, predictions, training_history.csv)
 
-Handles missing values using forward/backward fill
+### 04_enhanced_analysis.py
+Generates SHAP feature importance analysis, ablation study validating each architectural component, and cross-validation box plots.
 
-Standardizes features using StandardScaler
+Output: enhanced_analysis_results/ (SHAP plots, ablation bars, CV box plots)
 
-Preserves experiment traceability for cross-validation
+### 05_article_figures.py
+Creates publication-ready figures including prediction scatter plots, residual analysis, training history curves, and model comparison bar charts. Generates LaTeX tables for manuscripts.
 
-Input: Raw CSV files in E:/materials2/data
+Output: publication_figures_optimized/ (PNG, PDF, CSV tables)
 
-Output: Processed files saved to E:/materials2/processed_data
+### 06_statistical_tests.py
+Performs Friedman test for overall significance, Nemenyi post-hoc test for pairwise comparisons, and Wilcoxon signed-rank tests. Generates Critical Difference diagrams for visual interpretation.
 
-processed_features.csv - Standardized feature matrix
+Output: statistical_test_results/ (CD diagrams, summary tables, report)
 
-processed_targets.csv - Target variables (G and velocity)
+## Installation
 
-original_combined_data.csv - Raw combined data
+pip install torch pandas numpy scikit-learn matplotlib seaborn shap scipy
 
-processing_metadata.json - Complete preprocessing metadata
+## Execution Order
 
-processing_summary.csv - Quick reference summary
+python 01_data_processing.py
+python 02_baseline_models.py
+python 03_comprehensive_analysis.py
+python 04_enhanced_analysis.py
+python 05_article_figures.py
+python 06_statistical_tests.py
 
-# 02_comprehensive_analysis.py - Physics-Aware Multi-Task Learning Model
-Purpose: Trains a novel physics-aware neural network for simultaneous prediction of G (fracture energy) and crack velocity.
+## Dependencies
 
-Model Architecture:
-
-Shared feature extractor (128 → 64 → 32 dimensions)
-
-G branch with direct crack length connection (physics-aware design)
-
-Velocity branch using only shared features
-
-Batch normalization and dropout for regularization
-
-Key Features:
-
-Direct skip connection from crack length to G prediction branch
-
-Dynamic task weighting based on loss ratios
-
-Variance-normalized loss calculation
-
-Gradient clipping and learning rate scheduling
-
-Early stopping with patience of 30 epochs
-
-Training Configuration:
-
-Data split: 70% training, 15% validation, 15% test
-
-Batch size: 32
-
-Maximum epochs: 150
-
-Initial learning rate: 0.001
-
-Optimizer: Adam with weight decay
-
-Input: Processed data from 01_data_processing.py
-
-Output: Results saved to E:/materials2/physics_aware_mtl_results2
-
-best_model_*.pth - Best model checkpoint
-
-training_history.csv - Loss and R² history
-
-test_predictions.csv - Predictions vs true values
-
-test_metrics.json - Performance metrics
-
-experiment_config.json - Experiment configuration
-
-# 03_Baseline_Models.py - Baseline Model Comparison
-Purpose: Computes baseline machine learning models for fair comparison with the physics-aware MTL model.
-
-Implemented Models:
-
-Linear Regression
-
-Ridge Regression (L2 regularization)
-
-Random Forest (ensemble of 100 trees)
-
-Key Features:
-
-Uses EXACT same data splitting as the MTL model (random_split with seed 42)
-
-Proper feature scaling for linear models
-
-Random Forest uses raw features (no scaling needed)
-
-Comprehensive metrics including R², RMSE, MAE, MSE, and Max Error
-
-Input: Processed data from 01_data_processing.py
-
-Output: Results saved to E:/materials2/baseline_results
-
-baseline_results.json - Complete metrics for all models
-
-baseline_results.csv - Tabular results
-
-baseline_comparison_table.tex - LaTeX table for papers
-
-baseline_summary.txt - Text summary
-
-predictions/ - Individual model predictions
-
-# 04_article_figures.py - Publication-Ready Visualization
-Purpose: Generates professional, publication-quality figures and statistical tables for reporting results in scientific papers.
-
-Generated Figures:
-
-Figure	Description
-Figure 1	Prediction scatter plots (True vs. Predicted) with R² annotations
-Figure 2	Comprehensive residual analysis (residuals vs predictions, histograms with normal fits, Q-Q plots)
-Figure 3	Training history (loss curves, R² progression, learning rate schedule)
-Figure 4	Model comparison bar chart (Linear Regression, Ridge, Random Forest, MTL)
-Generated Tables:
-
-Table1_model_comparison.csv - Performance comparison of all models
-
-Table1_latex.txt - LaTeX-ready table for manuscripts
-
-Table2_detailed_results.csv - Detailed metrics for the MTL model
-
-publication_summary.txt - Key statistics for reporting
-
-Publication Style:
-
-Times New Roman fonts
-
-Colorblind-friendly color palette
-
-300 DPI resolution for raster images
-
-Vector PDF output for scalable figures
-
-Input:
-
-MTL results from 02_comprehensive_analysis.py
-
-Baseline results from 03_Baseline_Models.py
-
-Output: Figures and tables saved to E:/materials2/publication_figures1
-
-📁 Repository Structure
-text
-├── 01_data_processing.py          # Data preprocessing pipeline
-├── 02_comprehensive_analysis.py   # Physics-aware MTL model training
-├── 03_Baseline_Models.py          # Baseline model comparison
-├── 04_article_figures.py          # Publication-ready visualization
-└── README.md                      # This file
-🔧 Customization
-Modify Data Paths
-Update the directory paths in each script:
-
-python
-DATA_DIR = "your/data/path"
-OUTPUT_DIR = "your/output/path"
-Adjust Model Architecture
-Edit the PhysicsAwareMTL class in 02_comprehensive_analysis.py:
-
-Change hidden layer sizes
-
-Modify dropout rates
-
-Adjust the crack length index if needed
-
-Modify Training Parameters
-Update training configuration in 02_comprehensive_analysis.py:
-
-Batch size
-
-Learning rate
-
-Number of epochs
-
-Early stopping patience
-
-# 📦 Dependencies
-text
 torch>=1.9.0
 pandas>=1.3.0
 numpy>=1.21.0
 scikit-learn>=1.0.0
 matplotlib>=3.4.0
 seaborn>=0.11.0
+shap>=0.40.0
 scipy>=1.7.0
 
+## License
 
+MIT License
+
+## Citation
+
+If you use this code, please cite:
+https://github.com/anjumstat/physics_aware_MTL
+
+## Contact
+
+For questions or issues, please open an issue on GitHub.
